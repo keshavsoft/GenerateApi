@@ -1,0 +1,63 @@
+{
+    "tableName": "TasksTable",
+    "columns": [
+        {
+            "field": "title",
+            "title": "Title",
+            "unique": true,
+            "type": "text",
+            "isInput": true,
+            "isAutoFocus": true,
+            "defaultvalue": "2nd"
+        },
+        {
+            "field": "start",
+            "title": "Start Date",
+            "unique": false,
+            "type": "date",
+            "isDate": true,
+            "WidthOptions": {
+                "inPx": 200
+            }
+        },
+        {
+            "field": "className",
+            "title": "Class Name",
+            "unique": false,
+            "type": "text",
+            "isInput": false,
+            "isSelect": true,
+            "isDataList": false,
+            "selectOptions": [
+                {
+                    "value": "bg-primary",
+                    "text": "bg-primary"
+                },
+                {
+                    "value": "bg-success",
+                    "text": "bg-success"
+                }
+            ],
+            "WidthOptions": {
+                "inPx": 250
+            }
+        }
+    ],
+    "data": [],
+    "Vertical": [],
+    "DataTableOptions": {
+        "Header": {
+            "autoFocus": "title"
+        }
+    },
+    "SubRoutes": [
+        "Read",
+        "Insert"
+    ],
+    "NonSecured": {
+        "SubRoutes": [
+            "Read",
+            "Insert"
+        ]
+    }
+}
