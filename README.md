@@ -56,6 +56,10 @@ primay reason for this repo is to build dynamic end points complete programatica
 
 simple start with OnlyBackEnd.NonSecured
 
+### 1.1.2
+
+Api path started
+
 ### License
 
 MIT
