@@ -1,27 +1,24 @@
-const vscode = require('vscode');
+const vscode = require("vscode");
 
 const StartFunc = async ({ inToPath }) => {
     try {
-        const LocalToPath = inToPath;
+        const filePath = `${inToPath}/app.js`;
+        // console.log("Opening file", filePath);
 
-        const filePath = `${LocalToPath}/app.js`;
+        const uri = vscode.Uri.file(filePath);
+        const position = new vscode.Position(6, 0);
 
-        var openPath = vscode.Uri.file(filePath);
-        var pos1 = new vscode.Position(6, 0);
+        const doc = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(doc);
 
-        vscode.workspace.openTextDocument(openPath).then(doc => {
-            vscode.window.showTextDocument(doc).then(editor => {
-                // Line added - by having a selection at the same position twice, the cursor jumps there
-                editor.selections = [new vscode.Selection(pos1, pos1)];
+        editor.selection = new vscode.Selection(position, position);
+        editor.revealRange(new vscode.Range(position, position));
 
-                // And the visible range jumps there too
-                var range = new vscode.Range(pos1, pos1);
-                editor.revealRange(range);
-            });
-        });
+        // console.log("Cursor moved to line 7");
     } catch (error) {
-        vscode.window.showErrorMessage(`Error: ${error.message}`);
-    };
+        console.log("❌ Error", error.message);
+        vscode.window.showErrorMessage(`Error opening app.js`);
+    }
 };
 
 module.exports = { StartFunc };

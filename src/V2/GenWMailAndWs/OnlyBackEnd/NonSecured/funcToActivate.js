@@ -1,114 +1,109 @@
-const vscode = require('vscode');
-const fs = require('fs');
+const vscode = require("vscode");
+const fs = require("fs");
 
-const { StartFunc: StartFuncFromForMaxVersion } = require("./ForMaxVersion/entryFile");
-const { StartFunc: StartFuncFromOpenApp } = require("./openApp");
-const { StartFunc: StartFuncFromReadEnvFile } = require("./readEnvFile");
-const { StartFunc: StartFuncFromFirstCopy } = require("./FirstCopy/entryFile");
-const { StartFunc: StartFuncFromGetMaxVersion } = require("./getMaxVersion");
-const { StartFunc: StartFuncFromLastRun } = require("./LastRun/entryFile");
-// const { StartFunc: StartFuncrunNodeApp } = require("./serverRun");
+const { StartFunc: ForMaxVersion } = require("./ForMaxVersion/entryFile");
+const { StartFunc: OpenApp } = require("./openApp");
+const { StartFunc: ReadEnv } = require("./readEnvFile");
+const { StartFunc: FirstCopy } = require("./FirstCopy/entryFile");
+const { StartFunc: GetMaxVersion } = require("./getMaxVersion");
+const { StartFunc: LastRun } = require("./LastRun/entryFile");
+const { StartFunc: Recur } = require("./ForRestClients/entryFile");
 
-const { StartFunc: StartFuncFromRecur } = require("./ForRestClients/entryFile");
+/* ---------- MAIN ---------- */
 
 const StartFunc = async ({ inToPath }) => {
-    const LocalToPath = inToPath;
+    console.log("StartFunc called with path", inToPath);
 
-    let LocalVersion = await LocalFuncForNonSecureEndPoints({ inToPath });
+    const version = await prepareNonSecureEndpoints({ inToPath });
 
-    if (LocalVersion === false) {
-        return await false;
-    };
+    if (!version) {
+        console.log("❌ Version preparation failed");
+        return false;
+    }
 
-    StartFuncFromLastRun({
-        filePath: `${LocalToPath}/app.js`,
-        newVersion: LocalVersion,
-        inToPath: LocalToPath
+    LastRun({
+        filePath: `${inToPath}/app.js`,
+        newVersion: version,
+        inToPath
     });
 
-    vscode.window.showInformationMessage(`BoilerPlate code to: ${LocalToPath}`);
+    vscode.window.showInformationMessage(`BoilerPlate created at ${inToPath}`);
 
-    await StartFuncFromOpenApp({ inToPath: LocalToPath });
-    // StartFuncrunNodeApp(LocalToPath)
+    await OpenApp({ inToPath });
 };
 
-const LocalFuncForNonSecureEndPoints = async ({ inToPath }) => {
-    const LocalToPath = inToPath;
+/* ---------- CORE FLOW ---------- */
 
-    let LocalVersion = await LocalFuncForMaxVersion({
+const prepareNonSecureEndpoints = async ({ inToPath }) => {
+    console.log("Preparing endpoints for", inToPath);
+
+    const version = await getOrCreateVersion({
         inVersionStart: "V",
-        inToPath: LocalToPath
+        inToPath
     });
 
-    if (LocalVersion === false) {
+    if (!version) return false;
+
+    const env = ReadEnv({ inRootPath: inToPath });
+
+    if (!env) {
+        vscode.window.showInformationMessage(".env file not found");
         return false;
-    };
+    }
 
-    const LocalEnvFileAsJson = StartFuncFromReadEnvFile({ inRootPath: LocalToPath });
+    console.log("ENV loaded", env);
 
-    if (LocalEnvFileAsJson == null) {
-        vscode.window.showInformationMessage(`.env file not present...`);
-
-        return false;
-    };
-
-    const LocalDataPath = LocalEnvFileAsJson.DataPath ? LocalEnvFileAsJson.DataPath : "";
-    const LocalPortNumber = LocalEnvFileAsJson.PORT ? LocalEnvFileAsJson.PORT : "";
-
-    const LocalSuccess = await StartFuncFromForMaxVersion({
-        inDataPath: LocalDataPath,
-        inPortNumber: LocalPortNumber,
-        inToPath: LocalToPath,
-        inVersion: LocalVersion
+    const success = await ForMaxVersion({
+        inDataPath: env.DataPath || "",
+        inPortNumber: env.PORT || "",
+        inToPath,
+        inVersion: version
     });
 
-    if (LocalSuccess == false) {
-        vscode.window.showInformationMessage(`no table schema found...`);
+    if (!success) {
+        vscode.window.showInformationMessage("No table schema found");
+        return false;
+    }
 
-        return await false;
-    };
+    Recur(
+        inToPath.replaceAll("\\", "/"),
+        `${inToPath}/${version}`,
+        version,
+        env.PORT
+    );
 
-    StartFuncFromRecur(inToPath.replaceAll("\\", "/"), `${inToPath}/${LocalVersion}`, LocalVersion, LocalPortNumber);
+    console.log("✅ Preparation completed with version", version);
 
-    return await LocalVersion;
+    return version;
 };
 
-const LocalFuncCheckAppJs = ({ inToPath }) => {
-    return fs.existsSync(`${inToPath}/app.js`)
-};
+/* ---------- VERSION ---------- */
 
-const LocalFuncForMaxVersion = async ({ inVersionStart, inToPath }) => {
-    const LocalToPath = LocalFuncGetWorkSpaceFolder();
-    let LocalVersion = `${inVersionStart}1`;
+const getOrCreateVersion = async ({ inVersionStart, inToPath }) => {
 
-    const LocalFromMaxVersion = await StartFuncFromGetMaxVersion({
-        inToPath: LocalToPath,
+    let version = `${inVersionStart}1`;
+
+    const maxVersion = await GetMaxVersion({
+        inToPath,
         inVersionStart
     });
 
-    if (LocalFromMaxVersion === 0) {
-        if (LocalFuncCheckAppJs({ inToPath }) === false) {
-            const LocalFromCopy = await StartFuncFromFirstCopy({ inToPath: LocalToPath });
+    console.log("Max version found", maxVersion);
 
-            if (LocalFromCopy === false) {
-                return false;
-            };
-        };
+    if (maxVersion === 0) {
+        if (!fs.existsSync(`${inToPath}/app.js`)) {
+            console.log("app.js not found → copying base files");
+
+            const copied = await FirstCopy({ inToPath });
+            if (!copied) return false;
+        }
     } else {
-        LocalVersion = `${inVersionStart}${LocalFromMaxVersion}`;
-    };
+        version = `${inVersionStart}${maxVersion}`;
+    }
 
-    return LocalVersion;
+    return version;
 };
 
-const LocalFuncGetWorkSpaceFolder = () => {
-    if (vscode.workspace.workspaceFolders) {
-        const rootUri = vscode.workspace.workspaceFolders[0].uri;
-        const rootPath = rootUri.fsPath; // Get the file path
-        return rootPath;
-    } else {
-        console.log("No workspace folders found.");
-    };
-};
+/* ---------- EXPORT ---------- */
 
 module.exports = { StartFunc };

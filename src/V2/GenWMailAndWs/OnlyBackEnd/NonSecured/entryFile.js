@@ -7,7 +7,7 @@ const { StartFunc: StartFuncrunNodeApp } = require("./serverRun");
 
 const StartFunc = () => {
     vscode.commands.registerCommand(CommonRegisterCommand, async () => {
-        const LocalToPath = LocalFuncGetWorkSpaceFolder();
+        const LocalToPath = LocalFuncgetWorkspaceRoot();
 
         const LocalFromActivate = await StartFuncFromFuncToActivate({ inToPath: LocalToPath });
 
@@ -19,15 +19,22 @@ const StartFunc = () => {
     });
 };
 
-const LocalFuncGetWorkSpaceFolder = () => {
-    if (vscode.workspace.workspaceFolders) {
-        const rootUri = vscode.workspace.workspaceFolders[0].uri;
-        const rootPath = rootUri.fsPath; // Get the file path
-        return rootPath;
-    } else {
-        console.log("No workspace folders found.");
+const LocalFuncgetWorkspaceRoot = () => {
+    const folders = vscode.workspace.workspaceFolders;
+
+    console.log("Workspace folders:", folders);
+
+    if (!folders || folders.length === 0) {
+        console.log("❌ No workspace open");
+        return null;
     };
+
+    const rootPath = folders[0].uri.fsPath;
+    console.log("✅ Workspace root path:", rootPath);
+
+    return rootPath;
 };
+
 
 
 module.exports = { StartFunc };
