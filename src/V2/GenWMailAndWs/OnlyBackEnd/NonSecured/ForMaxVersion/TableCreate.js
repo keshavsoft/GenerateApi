@@ -1,32 +1,53 @@
-const vscode = require('vscode');
+const vscode = require("vscode");
 
-const { StartFunc: StartFuncFromRouteUse } = require("../RouteUse/entryFile");
-const { StartFunc: StartFuncFromCopyNeededOnly } = require("./copyNeededOnly");
-const { StartFunc: StartFuncFromAlterRouteFile } = require("./alterRouteFile");
-const { StartFunc: StartFuncFromAlterCommonFiles } = require("./alterCommonFiles");
+const { StartFunc: RouteUse } = require("../RouteUse/entryFile");
+const { StartFunc: CopyNeededOnly } = require("./copyNeededOnly");
+const { StartFunc: AlterRouteFile } = require("./alterRouteFile");
+const { StartFunc: AlterCommonFiles } = require("./alterCommonFiles");
 
-const StartFunc = ({ inTableName, inColumnsAsArray, inSubRoutes, inPortNumber, inToPath, inVersion }) => {
-    const LocalTableName = inTableName;
-    const LocalVersion = inVersion;
-    const LocalToPath = inToPath;
-
-    StartFuncFromCopyNeededOnly({ inTableName, inSubRoutes, inToPath, inVersion, inPortNumber, inColumnsAsArray });
-
-    StartFuncFromAlterRouteFile({ inTableName, inSubRoutes, inToPath, inVersion });
-    StartFuncFromAlterCommonFiles({ inTableName, inToPath, inVersion });
+const StartFunc = ({
+    inTableName,
+    inColumnsAsArray,
+    inSubRoutes,
+    inPortNumber,
+    inToPath,
+    inVersion
+}) => {
+    console.log("Start route build", { inTableName, inVersion });
 
     try {
-        StartFuncFromRouteUse({
-            inEditorPath: `${LocalToPath}/${LocalVersion}/routes.js`,
-            inNewRoute: LocalTableName,
-            inVersion: LocalVersion,
+        // 1. Copy required files
+        CopyNeededOnly({
+            inTableName,
+            inSubRoutes,
+            inToPath,
+            inVersion,
+            inPortNumber,
+            inColumnsAsArray
+        });
+        console.log("Files copied");
+
+        // 2. Alter route & common files
+        AlterRouteFile({ inTableName, inSubRoutes, inToPath, inVersion });
+        AlterCommonFiles({ inTableName, inToPath, inVersion });
+        console.log("Route & common files altered");
+
+        // 3. Register route usage
+        RouteUse({
+            inEditorPath: `${inToPath}/${inVersion}/routes.js`,
+            inNewRoute: inTableName,
+            inVersion,
             inSubRoutes
         });
+        console.log("Route registered", inTableName);
 
-        vscode.window.showInformationMessage(`BoilerPlate code to: ${LocalToPath}`);
+        vscode.window.showInformationMessage(
+            `Boilerplate created for ${inTableName}`
+        );
     } catch (error) {
-        vscode.window.showErrorMessage(`Error: ${error.message}`);
-    };
+        console.log("❌ Error", error.message);
+        vscode.window.showErrorMessage(`Route build failed: ${error.message}`);
+    }
 };
 
 module.exports = { StartFunc };

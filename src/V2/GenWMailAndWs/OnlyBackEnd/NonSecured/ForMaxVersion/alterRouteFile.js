@@ -1,42 +1,45 @@
-const fse = require('fs-extra');
+const fse = require("fs-extra");
+
 
 const StartFunc = ({ inTableName, inSubRoutes, inToPath, inVersion }) => {
-    const LocalTableName = inTableName;
-    const LocalVersion = inVersion;
-    const LocalToPath = inToPath;
+    try {
+        const routesPath = `${inToPath}/${inVersion}/${inTableName}/routes.js`;
+        console.log("Generating routes.js", routesPath);
 
-    let LocalFileDataAsArray = [];
-    LocalFileDataAsArray.push("import express from 'express';");
-    LocalFileDataAsArray.push("");
-    LocalFileDataAsArray.push("const router = express.Router();");
-    LocalFileDataAsArray.push("");
+        const content = buildRoutesFile(inSubRoutes);
+        fse.writeFileSync(routesPath, content);
 
-    const LocalLinesFromSubArray = LocalFuncForRoutesFile({ inSubRoutes });
-
-    LocalFileDataAsArray = [...LocalFileDataAsArray, ...LocalLinesFromSubArray];
-
-    LocalFileDataAsArray.push("");
-    LocalFileDataAsArray.push("export { router };");
-
-    fse.writeFileSync(`${LocalToPath}/${LocalVersion}/${LocalTableName}/routes.js`, LocalFileDataAsArray.join("\n"));
+        console.log("routes.js written successfully");
+    } catch (error) {
+        console.log("❌ Error writing routes.js", error.message);
+        throw error;
+    }
 };
 
+/* ---------- HELPERS ---------- */
 
-const LocalFuncForRoutesFile = ({ inSubRoutes }) => {
-    let LocalFileDataAsArray = [];
-
-    for (const LoopSubRoute of inSubRoutes) {
-        LocalFileDataAsArray.push(`import { router as routerFrom${LoopSubRoute} } from "./${LoopSubRoute}/routes.js"`);
-    };
-
-    LocalFileDataAsArray.push("");
-
-    for (const LoopSubRoute of inSubRoutes) {
-        LocalFileDataAsArray.push(`router.use("/${LoopSubRoute}", routerFrom${LoopSubRoute});`);
-    };
-
-    return LocalFileDataAsArray;
+const buildRoutesFile = (subRoutes = []) => {
+    return [
+        "import express from 'express';",
+        "",
+        "const router = express.Router();",
+        "",
+        ...buildSubRouteImports(subRoutes),
+        "",
+        ...buildSubRouteUses(subRoutes),
+        "",
+        "export { router };"
+    ].join("\n");
 };
 
+const buildSubRouteImports = (subRoutes) =>
+    subRoutes.map(
+        r => `import { router as routerFrom${r} } from "./${r}/routes.js";`
+    );
+
+const buildSubRouteUses = (subRoutes) =>
+    subRoutes.map(
+        r => `router.use("/${r}", routerFrom${r});`
+    );
 
 module.exports = { StartFunc };

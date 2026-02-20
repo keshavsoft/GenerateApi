@@ -1,147 +1,130 @@
-const vscode = require('vscode');
-const path = require('path');
+const vscode = require("vscode");
+const path = require("path");
 const fs = require("fs");
 
-const { StartFunc: StartFuncFromTableCreates } = require('./TableCreate');
-const { StartFunc: StartFuncFromCommonFuncs } = require('../../CommonFuncs/entryFile');
-const CommonRouteType = "NonSecured";
-const CommonJsonFileName = "api";
+const { StartFunc: CreateTables } = require("./TableCreate");
+const { StartFunc: CheckSchema } = require("../../CommonFuncs/entryFile");
 
-const LocalFuncReadSchemaJson = ({ inRootPath }) => {
+const ROUTE_TYPE = "NonSecured";
+const API_FILE = "api";
+
+/* ---------- READ ROOT api.json ---------- */
+
+const readApiSchema = ({ inRootPath }) => {
     try {
-        const fileContents = fs.readFileSync(`${inRootPath}/${CommonJsonFileName}.json`, 'utf-8');
-
-        return JSON.parse(fileContents);
-    } catch (error) {
-        console.error('Error reading .env file:', error);
+        const data = fs.readFileSync(`${inRootPath}/${API_FILE}.json`, "utf-8");
+        return JSON.parse(data);
+    } catch (err) {
+        console.log("❌ Failed to read api.json", err.message);
         return null;
     }
 };
 
-const LocalFuncForCheck = ({ inColumnsWithSchema, inTableName, inFromTableJson }) => {
-    const LocalColumnsWithSchema = inColumnsWithSchema;
-    const LocalTableName = inTableName;
-    const LocalFromTableJson = inFromTableJson;
+/* ---------- READ TABLE SCHEMA ---------- */
 
-    const LocalFromCheckSchema = StartFuncFromCommonFuncs({
-        inColumnsAsArray: LocalColumnsWithSchema,
-        inTableName: LocalTableName
-    });
+const readTableSchema = ({ inRootPath }) => {
+    try {
+        return JSON.parse(fs.readFileSync(inRootPath, "utf-8"));
+    } catch (err) {
+        console.log("❌ Failed to read table schema", inRootPath);
+        return null;
+    }
+};
 
-    if (LocalFromCheckSchema === false) {
-        // vscode.window.showInformationMessage(`field contains invalid char : ${tableName}`);
+/* ---------- VALIDATE TABLE ---------- */
+
+const validateTable = ({ columns, tableName, tableJson }) => {
+    console.log("Validating table", tableName);
+
+    if (!CheckSchema({ inColumnsAsArray: columns, inTableName: tableName })) {
+        console.log("❌ Invalid column schema", tableName);
         return false;
-    };
+    }
 
-    if (CommonRouteType in LocalFromTableJson === false) {
-        vscode.window.showInformationMessage(`NonSecured not found in Json Schema : ${LocalTableName}`);
+    if (!tableJson[ROUTE_TYPE]) {
+        vscode.window.showInformationMessage(`${ROUTE_TYPE} missing in ${tableName}`);
         return false;
-    };
+    }
 
-    if ("SubRoutes" in LocalFromTableJson[CommonRouteType] === false) {
-        vscode.window.showInformationMessage(`SubRoutes not found in Json Schema : ${LocalTableName}`);
+    if (!tableJson[ROUTE_TYPE].SubRoutes) {
+        vscode.window.showInformationMessage(`SubRoutes missing in ${tableName}`);
         return false;
-    };
+    }
 
     return true;
-    //dummy function
 };
+
+/* ---------- MAIN ---------- */
 
 const StartFunc = async ({ inDataPath, inPortNumber, inToPath, inVersion }) => {
-    const localVersion = inVersion;
-    const LocalToPath = inToPath;
+    console.log("Start table creation", inToPath);
 
-    const LocalJsonSchema = LocalFuncReadSchemaJson({ inRootPath: LocalToPath });
-    const LocalTablesArray = LocalJsonSchema.Tables;
+    const apiSchema = readApiSchema({ inRootPath: inToPath });
+    if (!apiSchema) return false;
 
-    const LocalFromTableCheck = LocalFuncForTableCheck({ inToPath: LocalToPath })
+    const tables = apiSchema.Tables || [];
 
-    if (LocalFromTableCheck === false) {
-        return await false;
-    };
-
-    for (const tableName of LocalTablesArray) {
-        const fromTablePath = path.join(__dirname, '..', tableName);
-        const toTablePath = path.join(LocalToPath, localVersion, tableName);
-        const LoopInsideTablePath = path.join(LocalToPath, "Schemas", `${tableName}.json`);
-
-        const LocalFromTableJson = LocalFuncReadTableSchema({ inRootPath: LoopInsideTablePath });
-
-        const LocalColumnsAsArray = LocalFromTableJson.columns.map(el => el.field);
-        const LocalData = LocalFromTableJson.Data ? LocalFromTableJson.Data : [];
-        const LocalColumnsWithSchema = LocalFromTableJson.columns;
-
-        const LocalFromCheck = LocalFuncForCheck({
-            inColumnsWithSchema: LocalColumnsWithSchema,
-            inTableName: tableName,
-            inFromTableJson: LocalFromTableJson
-        });
-
-        if (LocalFromCheck === false) {
-            continue;
-        };
-
-        const LocalSubRoutes = LocalFromTableJson[CommonRouteType].SubRoutes ? LocalFromTableJson[CommonRouteType].SubRoutes : [];
-
-        await StartFuncFromTableCreates({
-            inFromTablePath: fromTablePath, inToTablePath: toTablePath,
-            inTableName: tableName,
-            inColumnsAsArray: LocalColumnsAsArray,
-            inDataPath,
-            inPortNumber, inToPath: LocalToPath,
-            inColumnsWithSchema: LocalColumnsWithSchema,
-            inData: LocalData, inVersion: localVersion,
-            inSubRoutes: LocalSubRoutes,
-            inPortNumber
-        });
-    };
-};
-
-const LocalFuncForTableCheck = ({ inToPath }) => {
-    const LocalToPath = inToPath;
-
-    const LocalJsonSchema = LocalFuncReadSchemaJson({ inRootPath: LocalToPath });
-    const LocalTablesArray = LocalJsonSchema.Tables;
-    let LocalSuccess = false;
-
-    for (const tableName of LocalTablesArray) {
-        const LoopInsideTablePath = path.join(LocalToPath, "Schemas", `${tableName}.json`);
-
-        const LocalFromTableJson = LocalFuncReadTableSchema({ inRootPath: LoopInsideTablePath });
-
-        if (LocalFromTableJson === null) {
-            continue;
-        };
-
-        const LocalColumnsWithSchema = LocalFromTableJson.columns;
-
-        const LocalFromCheck = LocalFuncForCheck({
-            inColumnsWithSchema: LocalColumnsWithSchema,
-            inTableName: tableName,
-            inFromTableJson: LocalFromTableJson
-        });
-
-        if (LocalFromCheck === false) {
-            continue;
-        };
-
-        LocalSuccess = true;
-    };
-
-    if (LocalSuccess === false) {
+    if (!(await checkAnyValidTable({ inToPath }))) {
+        vscode.window.showInformationMessage("No valid table schema found");
         return false;
-    };
+    }
+
+    for (const tableName of tables) {
+        console.log("Processing table", tableName);
+
+        const schemaPath = path.join(inToPath, "Schemas", `${tableName}.json`);
+        const tableJson = readTableSchema({ inRootPath: schemaPath });
+        if (!tableJson) continue;
+
+        const columnsSchema = tableJson.columns || [];
+        const columns = columnsSchema.map(c => c.field);
+        const data = tableJson.Data || [];
+        const subRoutes = tableJson[ROUTE_TYPE].SubRoutes || [];
+
+        if (!validateTable({
+            columns: columnsSchema,
+            tableName,
+            tableJson
+        })) continue;
+
+        await CreateTables({
+            inFromTablePath: path.join(__dirname, "..", tableName),
+            inToTablePath: path.join(inToPath, inVersion, tableName),
+            inTableName: tableName,
+            inColumnsAsArray: columns,
+            inColumnsWithSchema: columnsSchema,
+            inData: data,
+            inDataPath,
+            inPortNumber,
+            inToPath,
+            inVersion,
+            inSubRoutes: subRoutes
+        });
+    }
+
+    console.log("✅ Table creation finished");
+    return true;
 };
 
-function LocalFuncReadTableSchema({ inRootPath }) {
-    try {
-        const fileContents = fs.readFileSync(inRootPath, 'utf-8');
+/* ---------- CHECK AT LEAST ONE VALID TABLE ---------- */
 
-        return JSON.parse(fileContents);
-    } catch (error) {
-        console.error('Error reading .env file:', error);
-        return null;
+const checkAnyValidTable = async ({ inToPath }) => {
+    const apiSchema = readApiSchema({ inRootPath: inToPath });
+    if (!apiSchema) return false;
+
+    for (const tableName of apiSchema.Tables || []) {
+        const schemaPath = path.join(inToPath, "Schemas", `${tableName}.json`);
+        const tableJson = readTableSchema({ inRootPath: schemaPath });
+        if (!tableJson) continue;
+
+        if (validateTable({
+            columns: tableJson.columns,
+            tableName,
+            tableJson
+        })) return true;
     }
+
+    return false;
 };
 
 module.exports = { StartFunc };

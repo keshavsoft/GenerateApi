@@ -1,25 +1,37 @@
-const fse = require('fs-extra');
-const path = require('path');
+const fse = require("fs-extra");
+const path = require("path");
 
-const StartFunc = async ({ inTableName, inSubRoutes, inToPath, inVersion, inPortNumber, inColumnsAsArray }) => {
-    const LocalTableName = inTableName;
-    const LocalVersion = inVersion;
-    const LocalToPath = inToPath;
+const StartFunc = async ({
+    inTableName,
+    inToPath,
+    inVersion,
+}) => {
+    try {
+        const targetDir = `${inToPath}/${inVersion}/${inTableName}`;
+        const sourceDir = path.join(__dirname, "..", "..", "..", "TableName");
 
-    let LocalFileDataAsArray = [];
-    LocalFileDataAsArray.push("import express from 'express';");
-    LocalFileDataAsArray.push("");
-    LocalFileDataAsArray.push("const router = express.Router();");
-    LocalFileDataAsArray.push("");
+        console.log("Copying table template", { sourceDir, targetDir });
 
-    const LocalFromTablePath = path.join(__dirname, "..", "..", "..", "TableName");
+        // 1️⃣ Copy base table folder
+        fse.copySync(sourceDir, targetDir);
 
-    fse.copySync(LocalFromTablePath, `${LocalToPath}/${LocalVersion}/${LocalTableName}`);
+        // 2️⃣ Create routes.js content
+        const routesContent = [
+            "import express from 'express';",
+            "",
+            "const router = express.Router();",
+            "",
+            "export { router };"
+        ].join("\n");
 
-    LocalFileDataAsArray.push("");
-    LocalFileDataAsArray.push("export { router };");
+        const routesPath = `${targetDir}/routes.js`;
+        fse.writeFileSync(routesPath, routesContent);
 
-    fse.writeFileSync(`${LocalToPath}/${LocalVersion}/${LocalTableName}/routes.js`, LocalFileDataAsArray.join("\n"));
+        console.log("routes.js created", routesPath);
+    } catch (error) {
+        console.log("❌ Error while copying route", error.message);
+        throw error;
+    }
 };
 
 module.exports = { StartFunc };
