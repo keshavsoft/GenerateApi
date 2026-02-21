@@ -1,0 +1,104 @@
+It guides the user step-by-step:
+
+. Creates schema if it doesn’t exist
+
+. Reads .env and schema columns
+
+. Copies base backend structure
+
+. Updates app.js automatically
+
+. Generates versioned CRUD APIs
+
+📌 Features
+
+✅ Auto-detects project workspace
+
+✅ Creates schema JSON if not available
+
+✅ Popup to create schema interactively
+
+✅ Reads .env file (PORT, DataPath, etc.)
+
+✅ Generates CRUD routes from schema columns
+
+✅ Copies base boilerplate code
+
+✅ Updates app.js automatically
+
+✅ Version-based API structure (V1, V2, …)
+
+✅ Supports Non-Secured routes
+
+✅ Designed for scalability and reuse
+
+-----------------------------------------------------------------------------------------------------------
+
+🧠 How It Works (Flow)
+
+1. Command Execution
+
+    . User runs the VS Code command
+    👉 OnlyBackEnd.NonSecured
+
+2. Workspace Validation
+
+    . Checks if a folder is opened in VS Code
+
+3. Schema Check
+
+    . Looks for api.json and table schema files
+
+    . If schema is missing:
+
+        . Shows popup to create schema
+
+4. Read Environment
+
+    . Reads .env file:
+
+    . PORT
+
+    . DataPath
+
+5. Version Handling
+
+    . Finds the maximum API version (V1, V2, etc.)
+
+    . Creates new version folder if needed
+
+6. First Copy
+
+    . Copies base backend boilerplate to root
+
+    . Creates folders like:
+
+V1/
+├── routes.js
+├── app.js
+├── Tables/
+
+
+7. CRUD Generation
+
+  . Reads schema columns
+
+  . Generates:
+
+    . Routes
+
+    . Controllers
+
+    . Common functions
+
+    . Params JSON
+
+7. app.js Update
+
+    . Automatically updates app.js
+
+    . Registers newly created routes
+
+8. Ready to Run
+
+    .   Backend CRUD is ready 🚀
