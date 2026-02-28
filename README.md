@@ -64,6 +64,10 @@ Api path started
 
 Pipe stared
 
+### 1.6.2
+
+Pipe alias changed, dropped StartFunc
+
 ### License
 
 MIT
