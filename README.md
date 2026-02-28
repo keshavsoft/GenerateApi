@@ -60,6 +60,10 @@ simple start with OnlyBackEnd.NonSecured
 
 Api path started
 
+### 1.6.1
+
+Pipe stared
+
 ### License
 
 MIT
