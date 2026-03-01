@@ -3,7 +3,7 @@ const path = require('path');
 const { StartFunc: StartFuncFromFuncToRun } = require("./funcToRun");
 
 // 👉 Configure these
-const TARGET_FOLDER_NAME = "Controllers";
+const TARGET_FOLDER_NAME = "controller.js";
 
 const StartFunc = (rootPath, currentPath, inVersion, inPortNumber) => {
     let entries;

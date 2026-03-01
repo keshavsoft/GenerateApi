@@ -12,7 +12,7 @@ const StartFunc = (inPath) => {
 };
 
 const LocalFuncForMethodTF = (inPath) => {
-    const LocalRoutePath = path.join(inPath, "Routes", "entryFile.js");
+    const LocalRoutePath = path.join(inPath, "routes.js");
     const LocalSearchString = "router.get(";
 
     const linesArray = LocalFuncFileAsArray(LocalRoutePath);

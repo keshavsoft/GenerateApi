@@ -3,9 +3,9 @@ import express from 'express';
 var router = express.Router();
 
 import {
-    postFilterDataFromBodyFunc
+    GetFunc
 } from './controller.js';
 
-router.get('/', postFilterDataFromBodyFunc);
+router.get('/', GetFunc);
 
 export { router };

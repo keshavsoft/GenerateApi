@@ -1,19 +1,21 @@
-import {
-    StartFunc as StartFuncFromReadFromFile
-} from './readFromFile.js';
+import { StartFunc as ServiceToRead } from './service.js';
+import { ConflictError, StorageError } from './errors.js';
 
-let GetFunc = (req, res) => {
-    let LocalFromRepo = StartFuncFromReadFromFile();
+const postFilterDataFromBodyFunc = (req, res) => {
+    try {
+        const message = ServiceToRead();
 
-    if (LocalFromRepo.KTF === false) {
-        res.status(404).send(LocalFromRepo.KReason);
+        res.type("application/json").send(message);
+    } catch (err) {
+        if (err instanceof ConflictError)
+            return res.status(409).send(err.message);
 
-        return;
-    };
+        if (err instanceof StorageError)
+            return res.status(500).send("Failed to persist data");
 
-    res.status(200).json(LocalFromRepo.JsonData);
+        console.error(err);
+        res.status(500).send("Unexpected error");
+    }
 };
 
-export {
-    GetFunc
-};
+export { postFilterDataFromBodyFunc };
