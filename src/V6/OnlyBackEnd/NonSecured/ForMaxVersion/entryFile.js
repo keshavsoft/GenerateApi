@@ -6,6 +6,7 @@ const { StartFunc: StartFuncFromTableCreates } = require('./TableCreate');
 const { StartFunc: StartFuncFromCommonFuncs } = require('../../CommonFuncs/entryFile');
 const CommonRouteType = "NonSecured";
 const CommonJsonFileName = "api";
+let LocalColumnsAsArray;
 
 const LocalFuncReadSchemaJson = ({ inRootPath }) => {
     try {
@@ -67,7 +68,7 @@ const StartFunc = async ({ inDataPath, inPortNumber, inToPath, inVersion }) => {
 
         const LocalFromTableJson = LocalFuncReadTableSchema({ inRootPath: LoopInsideTablePath });
 
-        const LocalColumnsAsArray = LocalFromTableJson.columns.map(el => el.field);
+        LocalColumnsAsArray = LocalFromTableJson.columns.map(el => el.field);
         const LocalData = LocalFromTableJson.Data ? LocalFromTableJson.Data : [];
         const LocalColumnsWithSchema = LocalFromTableJson.columns;
 
@@ -95,6 +96,7 @@ const StartFunc = async ({ inDataPath, inPortNumber, inToPath, inVersion }) => {
             inPortNumber
         });
     };
+    return LocalColumnsAsArray
 };
 
 const LocalFuncForTableCheck = ({ inToPath }) => {
