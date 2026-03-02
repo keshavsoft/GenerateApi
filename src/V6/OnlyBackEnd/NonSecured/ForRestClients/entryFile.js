@@ -1,24 +1,19 @@
-const fs = require('fs');
-const path = require('path');
-const { StartFunc: StartFuncFromFuncToRun } = require("./funcToRun");
+const fs = require("fs");
+const path = require("path");
 
-// 👉 Configure these
-const TARGET_FOLDER_NAME = "controller.js";
+const CommoTargetFile = "controller.js";
 
-const StartFunc = (rootPath, currentPath, inVersion, inPortNumber) => {
+const StartFunc = (rootPath, currentPath, inVersion, inPortNumber, inColumnsAsArray) => {
     let entries;
 
     try {
         entries = fs.readdirSync(currentPath, { withFileTypes: true });
-    } catch (err) {
-        console.error("Cannot read:", currentPath, err.message);
+    } catch (error) {
         return;
     };
 
-    const LocalNamesOnly = entries.map(entry => entry.name);
-
-    if (LocalNamesOnly.includes(TARGET_FOLDER_NAME)) {
-        StartFuncFromFuncToRun(rootPath, currentPath, inVersion, inPortNumber)
+    if (entries.some(e => e.name === CommoTargetFile)) {
+        LocalCreateHttpFile(rootPath, currentPath, inPortNumber, inColumnsAsArray);
     };
 
     for (const entry of entries) {
@@ -26,9 +21,67 @@ const StartFunc = (rootPath, currentPath, inVersion, inPortNumber) => {
 
         const fullPath = path.join(currentPath, entry.name);
 
-        StartFunc(rootPath, fullPath, inVersion, inPortNumber);
+        StartFunc(rootPath, fullPath, inVersion, inPortNumber, inColumnsAsArray);
     };
 };
 
-// StartFunc("V1");
+const LocalCreateHttpFile = (rootPath, currentPath, inPortNumber, inColumnsAsArray) => {
+    const method = LocaldetectMethod(currentPath);
+    const route = LocalbuildRoute(rootPath, currentPath);
+
+    let body = "";
+
+    if ((method === "POST" || method === "PUT") && Array.isArray(inColumnsAsArray)) {
+        const jsonBody = inColumnsAsArray
+            .map(key => `  "${key}": ""`)
+            .join(",\n");
+
+        body = `
+Content-Type: application/json
+
+{
+${jsonBody}
+}`;
+    }
+
+    fs.writeFileSync(
+        path.join(currentPath, "restNew.http"),
+        `${method} http://localhost:${inPortNumber}${route}${body}`,
+        "utf8"
+    );
+};
+
+const LocaldetectMethod = (currentPath) => {
+    const content = fs.readFileSync(path.join(currentPath, "routes.js"), "utf8");
+
+    if (content.includes("router.get(")) return "GET";
+    if (content.includes("router.post(")) return "POST";
+    if (content.includes("router.put(")) return "PUT";
+    if (content.includes("router.delete(")) return "DELETE";
+
+    return "POST";
+};
+
+const LocalbuildRoute = (rootPath, currentPath) => {
+    try {
+        const parts = currentPath.split(path.sep);
+        const folder = parts[parts.length - 1];
+
+        const routesFile = path.join(currentPath, "..", "routes.js");
+        const lines = fs.readFileSync(routesFile, "utf8").split(/\r?\n/);
+
+        const match = lines.find(l => l.includes(`/${folder}/`));
+
+        if (match) {
+            const alias = match.split(" as ")[1]?.split("}")[0]?.replace("routerFrom", "");
+            if (alias) parts[parts.length - 1] = alias;
+        }
+
+        return parts.join("/").replace(rootPath, "");
+    } catch (err) {
+        console.error("Route build error:", err.message);
+        return "";
+    }
+};
+
 module.exports = { StartFunc };
