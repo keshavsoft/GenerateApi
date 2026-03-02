@@ -60,6 +60,18 @@ simple start with OnlyBackEnd.NonSecured
 
 Api path started
 
+### 1.6.1
+
+Pipe stared
+
+### 1.6.2
+
+Pipe alias changed, dropped StartFunc
+
+### 1.6.3
+
+rest perfect, but post body should come
+
 ### License
 
 MIT
