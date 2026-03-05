@@ -72,6 +72,10 @@ Pipe alias changed, dropped StartFunc
 
 rest perfect, but post body should come
 
+### 1.7.1
+
+js for frontend automation perfect and routes also perfect
+
 ### License
 
 MIT
