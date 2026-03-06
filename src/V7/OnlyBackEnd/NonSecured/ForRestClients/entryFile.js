@@ -3,7 +3,7 @@ const path = require("path");
 
 const CommoTargetFile = "controller.js";
 
-const StartFunc = (rootPath, currentPath, inVersion, inPortNumber, inColumnsAsArray) => {
+const StartFunc = (rootPath, currentPath, inVersion, inPortNumber, inColumnsAsArray, tableName,) => {
     let entries;
 
     try {
@@ -13,7 +13,10 @@ const StartFunc = (rootPath, currentPath, inVersion, inPortNumber, inColumnsAsAr
     };
 
     if (entries.some(e => e.name === CommoTargetFile)) {
-        LocalCreateHttpFile(rootPath, currentPath, inPortNumber, inColumnsAsArray);
+        const CurrentTableNameName = currentPath.split("\\")[7];
+        if (CurrentTableNameName == tableName) {
+            LocalCreateHttpFile(rootPath, currentPath, inPortNumber, inColumnsAsArray, tableName);
+        }
     };
 
     for (const entry of entries) {
@@ -21,7 +24,7 @@ const StartFunc = (rootPath, currentPath, inVersion, inPortNumber, inColumnsAsAr
 
         const fullPath = path.join(currentPath, entry.name);
 
-        StartFunc(rootPath, fullPath, inVersion, inPortNumber, inColumnsAsArray);
+        StartFunc(rootPath, fullPath, inVersion, inPortNumber, inColumnsAsArray, tableName);
     };
 };
 
