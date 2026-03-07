@@ -3,7 +3,7 @@
   "displayName": "GenerateApi",
   "publisher": "KeshavSoft",
   "description": "KeshavSoft Extension to enhance the development of web applications",
-  "version": "1.7.1",
+  "version": "1.8.1",
   "engines": {
     "vscode": "^1.96.0"
   },

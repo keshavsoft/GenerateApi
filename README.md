@@ -76,6 +76,10 @@ rest perfect, but post body should come
 
 js for frontend automation perfect and routes also perfect
 
+### 1.8.1
+
+new find and others added
+
 ### License
 
 MIT
