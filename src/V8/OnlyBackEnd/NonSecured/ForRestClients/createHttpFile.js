@@ -18,7 +18,7 @@ const StartFunc = (rootPath, currentPath, inVersion, inPortNumber, inColumnsAsAr
         const CurrentTableNameName = localPathSplitArray[localPathSplitArray.length - 2];
 
         if (CurrentTableNameName == tableName) {
-            LocalCreateHttpFile(rootPath, currentPath, inPortNumber, inColumnsAsArray, tableName);
+            LocalCreateHttpFile(rootPath, currentPath, inPortNumber, inColumnsAsArray);
         }
     };
 

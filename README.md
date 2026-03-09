@@ -80,6 +80,10 @@ js for frontend automation perfect and routes also perfect
 
 new find and others added
 
+### 1.8.2
+
+recur replaced by vscode from chatgpt and V1 started there
+
 ### License
 
 MIT
