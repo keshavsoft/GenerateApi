@@ -84,6 +84,10 @@ new find and others added
 
 recur replaced by vscode from chatgpt and V1 started there
 
+### 1.9.1
+
+Insertwithdefaults added
+
 ### License
 
 MIT
