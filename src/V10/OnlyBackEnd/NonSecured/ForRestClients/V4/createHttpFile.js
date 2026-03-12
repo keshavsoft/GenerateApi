@@ -46,12 +46,11 @@ const getWorkSpaceFolder = () => {
 const LocalbuildRoute = ({ inCurrentPath }) => {
     try {
         const presentPath = getWorkSpaceFolder();
-        const presentPathReplaced =presentPath.replaceAll("\\", "/");
 
         const parts = inCurrentPath.split(path.sep);
         const folder = parts[parts.length - 1];
 
-        const routesFile = path.join(inCurrentPath, "..", "routes.js");
+        const routesFile = path.resolve(inCurrentPath, "..", "routes.js");
         const lines = fs.readFileSync(routesFile, "utf8").split(/\r?\n/);
 
         const match = lines.find(l => l.includes(`/${folder}/`));
@@ -59,9 +58,12 @@ const LocalbuildRoute = ({ inCurrentPath }) => {
         if (match) {
             const alias = match.split(" as ")[1]?.split("}")[0]?.replace("routerFrom", "");
             if (alias) parts[parts.length - 1] = alias;
-        }
+        };
 
-        return parts.join("/").replace(presentPathReplaced, "");
+        let removedPath = parts.join("\\").replace(presentPath, "");
+        const removedPathReplaced = removedPath.replaceAll("\\", "/");
+
+        return removedPathReplaced;
     } catch (err) {
         console.error("Route build error:", err.message);
         return "";
