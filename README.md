@@ -100,6 +100,10 @@ V2 rest perfect, but being called OK, but there we are just calling this functio
 
 Something like that. But unfortunately. Rest clients are still not working good. The columns inserted into HTTP files are wrong. 
 
+### 1.10.1
+
+Yeah, right now in the latest version 10, I think residents are perfectly being created. With columns exactly in post only, not exactly in post. In methods other than git and. There is a catch properties. New properties added in columns schema as. Dot not dot please consider. isConsider : boolean
+
 ### License
 
 MIT
