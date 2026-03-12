@@ -116,9 +116,7 @@ const StartFunc = async ({ inDataPath, inPortNumber, inToPath, inVersion }) => {
         inSubRoutes: LocalTablesArray,
         inToPath: LocalToPath,
         inVersion: localVersion
-    })
-
-
+    });
 
     return LocalColumnsAsArray;
 };

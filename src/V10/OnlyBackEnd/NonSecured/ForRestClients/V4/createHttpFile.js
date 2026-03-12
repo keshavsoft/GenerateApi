@@ -3,19 +3,20 @@ const path = require("path");
 const vscode = require('vscode');
 const { startFunc: buildHttpContent } = require('./buildHttpContent');
 
-const StartFunc = ({ currentPath, inPortNumber }) => {
-    const method = LocaldetectMethod(currentPath);
-    const route = LocalbuildRoute(currentPath);
+const StartFunc = ({ inToPathRoot, inCurrentPath, inPortNumber }) => {
+    const method = LocaldetectMethod(inCurrentPath);
+    const route = LocalbuildRoute({ inCurrentPath });
 
     const fileContent = buildHttpContent({
         method,
         route,
         inPortNumber,
-        currentPath
+        inCurrentPath,
+        inToPathRoot
     });
 
     fs.writeFileSync(
-        path.join(currentPath, "restNew.http"),
+        path.join(inCurrentPath, "restNew.http"),
         fileContent,
         "utf8"
     );
@@ -42,14 +43,15 @@ const getWorkSpaceFolder = () => {
     };
 };
 
-const LocalbuildRoute = (currentPath) => {
+const LocalbuildRoute = ({ inCurrentPath }) => {
     try {
-        const rootPath = getWorkSpaceFolder();
+        const presentPath = getWorkSpaceFolder();
+        const presentPathReplaced =presentPath.replaceAll("\\", "/");
 
-        const parts = currentPath.split(path.sep);
+        const parts = inCurrentPath.split(path.sep);
         const folder = parts[parts.length - 1];
 
-        const routesFile = path.join(currentPath, "..", "routes.js");
+        const routesFile = path.join(inCurrentPath, "..", "routes.js");
         const lines = fs.readFileSync(routesFile, "utf8").split(/\r?\n/);
 
         const match = lines.find(l => l.includes(`/${folder}/`));
@@ -59,7 +61,7 @@ const LocalbuildRoute = (currentPath) => {
             if (alias) parts[parts.length - 1] = alias;
         }
 
-        return parts.join("/").replace(rootPath, "");
+        return parts.join("/").replace(presentPathReplaced, "");
     } catch (err) {
         console.error("Route build error:", err.message);
         return "";

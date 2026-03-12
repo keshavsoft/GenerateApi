@@ -73,6 +73,7 @@ const LocalFuncForNonSecureEndPoints = async ({ inToPath }) => {
 
     StartFuncFromRecur({
         inPortNumber: LocalPortNumber,
+        inToPathRoot: LocalToPath,
         inVersion: LocalVersion
     });
 

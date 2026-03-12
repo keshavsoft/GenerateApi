@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const startFunc = ({ currentPath, method, route, inPortNumber }) => {
-    const columnsAsArray = getColumns(currentPath);
+const startFunc = ({ inCurrentPath, method, route, inPortNumber }) => {
+    const columnsAsArray = getColumns(inCurrentPath);
 
     const urlLine = `${method} http://localhost:${inPortNumber}${route}`;
 
