@@ -104,6 +104,10 @@ Something like that. But unfortunately. Rest clients are still not working good.
 
 Yeah, right now in the latest version 10, I think residents are perfectly being created. With columns exactly in post only, not exactly in post. In methods other than git and. There is a catch properties. New properties added in columns schema as. Dot not dot please consider. isConsider : boolean
 
+### 1.10.2
+
+Yeah, almost perfect. That rest clients, but the only thing is need to add a new property. 
+
 ### License
 
 MIT
