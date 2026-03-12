@@ -5,11 +5,41 @@ const StartFunc = ({ rootPath, currentPath, inPortNumber, inColumnsAsArray }) =>
     const method = LocaldetectMethod(currentPath);
     const route = LocalbuildRoute(rootPath, currentPath);
 
+    const fileContent = LocalbuildHttpContent({
+        method,
+        route,
+        inPortNumber,
+        inColumnsAsArray
+    });
+
     fs.writeFileSync(
         path.join(currentPath, "restNew.http"),
-        `${method} http://localhost:${inPortNumber}${route}`,
+        fileContent,
         "utf8"
     );
+};
+
+const LocalbuildHttpContent = ({ method, route, inPortNumber, inColumnsAsArray }) => {
+    const urlLine = `${method} http://localhost:${inPortNumber}${route}`;
+
+    if (method === "GET") return urlLine;
+
+    const body = LocalbuildBody(inColumnsAsArray);
+
+    return `${urlLine}
+Content-Type: application/json
+
+${body}`;
+};
+
+const LocalbuildBody = (inColumnsAsArray) => {
+    const obj = {};
+
+    inColumnsAsArray.forEach(column => {
+        obj[column] = "";
+    });
+
+    return JSON.stringify(obj, null, 4);
 };
 
 const LocaldetectMethod = (currentPath) => {
@@ -36,7 +66,7 @@ const LocalbuildRoute = (rootPath, currentPath) => {
         if (match) {
             const alias = match.split(" as ")[1]?.split("}")[0]?.replace("routerFrom", "");
             if (alias) parts[parts.length - 1] = alias;
-        };
+        }
 
         return parts.join("/").replace(rootPath, "");
     } catch (err) {

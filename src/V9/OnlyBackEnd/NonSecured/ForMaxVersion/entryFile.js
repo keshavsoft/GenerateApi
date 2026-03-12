@@ -5,7 +5,9 @@ const fs = require("fs");
 const { StartFunc: StartFuncFromTableCreates } = require('./TableCreate');
 const { StartFunc: StartFuncFromCommonFuncs } = require('../../CommonFuncs/entryFile');
 const { StartFunc: createRouteJsFile } = require('./createRouteJsFile');
-const { StartFunc: StartFuncFromRecur } = require("../ForRestClients/entryFile");
+// const { StartFunc: StartFuncFromRecur } = require("../ForRestClients/entryFile");
+// const { StartFunc: StartFuncFromRecur } = require("../ForRestClients/V1/entryFile");
+const { StartFunc: StartFuncFromRecur } = require("../ForRestClients/V2/entryFile");
 
 const CommonRouteType = "NonSecured";
 const CommonJsonFileName = "api";
@@ -99,7 +101,13 @@ const StartFunc = async ({ inDataPath, inPortNumber, inToPath, inVersion }) => {
             inDependantTables: DependantTables
         });
 
-        StartFuncFromRecur(inToPath.replaceAll("\\", "/"), `${inToPath}/${localVersion}`, localVersion, inPortNumber, LocalColumnsAsArray, tableName,);
+        // StartFuncFromRecur(inToPath.replaceAll("\\", "/"), `${inToPath}/${localVersion}`, localVersion, inPortNumber, LocalColumnsAsArray, tableName,);
+
+        StartFuncFromRecur({
+            rootPath: inToPath.replaceAll("\\", "/"),
+            inPortNumber,
+            inColumnsAsArray: LocalColumnsAsArray
+        });
     };
 
     createRouteJsFile({

@@ -88,6 +88,10 @@ recur replaced by vscode from chatgpt and V1 started there
 
 Insertwithdefaults added
 
+### 1.9.2
+
+V2 rest post coming to http files
+
 ### License
 
 MIT
