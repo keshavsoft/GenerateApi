@@ -106,7 +106,8 @@ const StartFunc = async ({ inDataPath, inPortNumber, inToPath, inVersion }) => {
         StartFuncFromRecur({
             rootPath: inToPath.replaceAll("\\", "/"),
             inPortNumber,
-            inColumnsAsArray: LocalColumnsAsArray
+            inColumnsAsArray: LocalColumnsAsArray,
+            inVersion: localVersion
         });
     };
 
