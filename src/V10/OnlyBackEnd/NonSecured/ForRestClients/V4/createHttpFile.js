@@ -2,10 +2,11 @@ const fs = require("fs");
 const path = require("path");
 const vscode = require('vscode');
 const { startFunc: buildHttpContent } = require('./buildHttpContent');
+const { startFunc: buildRoute } = require('./buildRoute');
 
 const StartFunc = ({ inToPathRoot, inCurrentPath, inPortNumber }) => {
     const method = LocaldetectMethod(inCurrentPath);
-    const route = LocalbuildRoute({ inCurrentPath });
+    const route = buildRoute({ inCurrentPath });
 
     const fileContent = buildHttpContent({
         method,
@@ -33,22 +34,14 @@ const LocaldetectMethod = (currentPath) => {
     return "POST";
 };
 
-const getWorkSpaceFolder = () => {
-    if (vscode.workspace.workspaceFolders) {
-        const rootUri = vscode.workspace.workspaceFolders[0].uri;
-        const rootPath = rootUri.fsPath; // Get the file path
-        return rootPath;
-    } else {
-        console.log("No workspace folders found.");
-    };
-};
-
 const LocalbuildRoute = ({ inCurrentPath }) => {
     try {
         const presentPath = getWorkSpaceFolder();
 
         const parts = inCurrentPath.split(path.sep);
         const folder = parts[parts.length - 1];
+
+        // const folder = path.basename(inCurrentPath);
 
         const routesFile = path.resolve(inCurrentPath, "..", "routes.js");
         const lines = fs.readFileSync(routesFile, "utf8").split(/\r?\n/);
@@ -68,6 +61,13 @@ const LocalbuildRoute = ({ inCurrentPath }) => {
         console.error("Route build error:", err.message);
         return "";
     }
+};
+
+const getWorkSpaceFolder = () => {
+    const folders = vscode.workspace.workspaceFolders;
+    if (!folders || folders.length === 0) return "";
+
+    return folders[0].uri.fsPath;
 };
 
 module.exports = { StartFunc };
