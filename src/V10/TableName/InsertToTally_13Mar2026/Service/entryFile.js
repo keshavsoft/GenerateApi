@@ -1,8 +1,8 @@
 import { startFunc as PrepareDataObject } from "./PrepareDataObject/entryFile.js"
 import { startFunc as sendToTally } from "./sendToTally.js"
 
-const StartFunc = async ({ inPk }) => {
-    return await createSalesVoucher({ inPk });
+const StartFunc = ({ inPk }) => {
+    createSalesVoucher({ inPk });
 };
 
 async function createSalesVoucher({ inPk }) {
@@ -11,11 +11,9 @@ async function createSalesVoucher({ inPk }) {
         const result = await sendToTally(data);
 
         if (result.data.import_result.created === 1) {
-            // insertToJson({ inData: data });
+            insertToJson({ inData: data });
 
             console.log(`data inserted to import.json`);
-
-            return await result.data.import_result.lastvchid;
         };
 
         console.log("TALLY RESPONSE:", result);

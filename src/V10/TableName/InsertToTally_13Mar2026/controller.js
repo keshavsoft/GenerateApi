@@ -1,11 +1,11 @@
 import { StartFunc as ServiceToRead } from './Service/entryFile.js';
 import { ConflictError, StorageError } from './errors.js';
 
-const postFilterDataFromBodyFunc = async (req, res) => {
+const postFilterDataFromBodyFunc = (req, res) => {
     try {
         const inPk = req.params.inPk;
 
-        const message = await ServiceToRead({ inPk });
+        const message = ServiceToRead({ inPk });
 
         res.type("application/json").send(message);
     } catch (err) {

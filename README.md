@@ -120,6 +120,10 @@ rest perfect
 
 buildRoute modular
 
+### 1.10.6
+
+InsertToTally perfect
+
 ### License
 
 MIT
