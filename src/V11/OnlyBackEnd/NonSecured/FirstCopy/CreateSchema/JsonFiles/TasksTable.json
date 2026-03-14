@@ -8,7 +8,9 @@
             "type": "text",
             "isInput": true,
             "isAutoFocus": true,
-            "defaultvalue": "2nd"
+            "defaultvalue": "KeshavSoft",
+            "isConsider": true,
+            "showInUi": true
         },
         {
             "field": "start",
@@ -18,7 +20,9 @@
             "isDate": true,
             "WidthOptions": {
                 "inPx": 200
-            }
+            },
+            "isConsider": true,
+            "showInUi": true
         },
         {
             "field": "className",
@@ -27,7 +31,7 @@
             "type": "text",
             "isInput": false,
             "isSelect": true,
-            "isDataList": false,
+            "isDataList": true,
             "selectOptions": [
                 {
                     "value": "bg-primary",
@@ -40,7 +44,9 @@
             ],
             "WidthOptions": {
                 "inPx": 250
-            }
+            },
+            "isConsider": true,
+            "showInUi": true
         }
     ],
     "data": [],
@@ -57,7 +63,11 @@
     "NonSecured": {
         "SubRoutes": [
             "Read",
-            "Insert"
+            "Insert",
+            "InsertAndReturnPk",
+            "ShowAll"
         ]
-    }
+    },
+    "PrimarykeyTableNames": [],
+    "PrimarykeyTables": []
 }
