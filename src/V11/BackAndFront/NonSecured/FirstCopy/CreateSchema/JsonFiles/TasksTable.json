@@ -31,7 +31,7 @@
             "type": "text",
             "isInput": false,
             "isSelect": true,
-            "isDataList": false,
+            "isDataList": true,
             "selectOptions": [
                 {
                     "value": "bg-primary",
