@@ -126,6 +126,10 @@ InsertToTally perfect
 
 tasks table, good with create and show only, BackAndFront started
 
+### 1.11.2
+
+PipeAndTransform added
+
 ### License
 
 MIT
