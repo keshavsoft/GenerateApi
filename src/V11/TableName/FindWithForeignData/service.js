@@ -2,9 +2,10 @@ import fs from "fs";
 import ParamsJson from '../CommonFuncs/params.json' with { type: 'json' };
 
 const StartFunc = ({ inPk }) => {
-    const LocalFindRow = pullFindRow({ inPk });
+    let LocalPk = parseInt(inPk);
+    const LocalFindRow = pullFindRow({ inPk: LocalPk });
 
-    LocalFindRow.ForeignkeyTableData = pullForeignTableData({ inPk });
+    LocalFindRow.ForeignkeyTableData = pullForeignTableData({ inPk: LocalPk });
 
     return LocalFindRow;
 };
