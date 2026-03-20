@@ -1,0 +1,6 @@
+POST http://localhost:3000/V5/ItemsTable/InsertAndReturnPk
+Content-Type: application/json
+
+{
+ "ItemName":"aaaaaa"   
+}
